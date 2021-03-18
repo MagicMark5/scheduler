@@ -3,82 +3,48 @@ import axios from 'axios';
 
 import DayList from "./DayList";
 import Appointment from "components/Appointment"
+import { getAppointmentsForDay, getInterviewersForDay, getInterview } from "helpers/selectors";
 
 import "components/Application.scss";
 
 
-const appointments = [
-  {
-    id: 1,
-    time: "12pm",
-  },
-  {
-    id: 2,
-    time: "1pm",
-    interview: {
-      student: "Lydia Miller-Jones",
-      interviewer: {
-        id: 1,
-        name: "Sylvia Palmer",
-        avatar: "https://i.imgur.com/LpaY82x.png",
-      }
-    }
-  },
-  {
-    id: 3,
-    time: "2pm",
-    interview: {
-      student: "Dubius Dumbel",
-      interviewer: {
-        id: 4,
-        name: "Cohana Roy",
-        avatar: "https://i.imgur.com/FK8V841.jpg",
-      }
-    }
-  }, 
-  {
-    id: 4,
-    time: "3pm",
-    interview: {
-      student: "Abby Nimbus",
-      interviewer: {
-        id: 2,
-        name: "Tori Malcolm",
-        avatar: "https://i.imgur.com/Nmx0Qxo.png",
-      }
-    }
-  }, 
-  {
-    id: 5,
-    time: "4pm",
-    interview: {
-      student: "Howard Stern",
-      interviewer: {
-        id: 3,
-        name: "Mildred Nazir",
-        avatar: "https://i.imgur.com/T2WwVfS.png",
-      }
-    }
-  }
-];
-
 export default function Application(props) {
 
-  const [day, setDay] = useState(["Monday"]);
-  const [days, setDays] = useState([]);
+  // const [day, setDay] = useState(["Monday"]);
+  // const [days, setDays] = useState([]);
 
-  const mappedAppts = appointments.map((appt) => {
+  const [state, setState] = useState({
+    day: "",
+    days: [],
+    appointments: {}, 
+    interviewers: {}
+  });
+
+  const setDay = day => setState({ ...state, day }); 
+  // 'state' cannot be referred to in the Effect method without declaring it in the dependency list
+  // const setDays = days => setState(prev => ({ ...prev, days })); 
+
+    
+  const dailyAppointments = getAppointmentsForDay(state, state.day);
+  const dailyInterviewers = getInterviewersForDay(state, state.day);
+
+  const apptComponents = dailyAppointments.map((appt) => {
+    const interview = getInterview(state, appt.interview);
+    
     return <Appointment 
-            {...appt}
             key={appt.id}
+            id={appt.id}
+            time={appt.time}
+            interview={interview}
+            interviewers={dailyInterviewers}
            />
   });
 
   useEffect(() => {
 
-    axios.get('/api/days')
-      .then((res) => {
-        setDays([...res.data]);
+    Promise.all([axios.get('/api/days'), axios.get('/api/appointments'), axios.get('http://localhost:8001/api/interviewers')])
+      .then(([days, appts, interviewers]) => {
+        setState(prev => ({ ...prev, days: days.data, appointments: appts.data, interviewers: interviewers.data }))
       })
       .catch((err) => {
         console.log(err);
@@ -98,8 +64,8 @@ export default function Application(props) {
           <hr className="sidebar__separator sidebar--centered" />
           <nav className="sidebar__menu">
             <DayList
-              days={days}
-              day={day}
+              days={state.days}
+              day={state.day}
               setDay={setDay} // the parameter getting passed is like 'event.target.name' already
             />
           </nav>
@@ -112,7 +78,7 @@ export default function Application(props) {
         }
       </section>
       <section className="schedule">
-        {mappedAppts}
+        {apptComponents}
       </section>
     </main>
   );
