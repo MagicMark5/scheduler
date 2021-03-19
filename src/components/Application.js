@@ -3,13 +3,16 @@ import axios from 'axios';
 
 import DayList from "./DayList";
 import Appointment from "components/Appointment"
+import useVisualMode from '../hooks/useVisualMode'
 import { getAppointmentsForDay, getInterviewersForDay, getInterview } from "helpers/selectors";
 
 import "components/Application.scss";
 
+const SHOW = "SHOW";
+const EMPTY = "EMPTY";
 
 export default function Application(props) {
-
+  const { transition } = useVisualMode(props.interview ? SHOW : EMPTY);
   // const [day, setDay] = useState(["Monday"]);
   // const [days, setDays] = useState([]);
 
@@ -24,6 +27,33 @@ export default function Application(props) {
   // 'state' cannot be referred to in the Effect method without declaring it in the dependency list
   // const setDays = days => setState(prev => ({ ...prev, days })); 
 
+  function bookInterview(id, interview) {
+    // console.log(id, interview);
+    
+    // Creating new objects with immutability patterns (not mutating/referencing the original state object)
+
+    const appointment = {
+      ...state.appointments[id],
+      interview: { ...interview }
+    };
+    // console.log("Appointment, ", appointment);
+
+    const appointments = {
+      ...state.appointments,
+      [id]: appointment
+    };
+    // console.log("Appointments, ", appointments);
+
+    return axios.put(`/api/appointments/${id}`, {interview})
+      .then(res => {
+        setState({ ...state, appointments: appointments });
+      })
+      .catch(err => console.log("Put request to book apointment returned an error: ", err));
+
+    
+  }
+  
+  // console.log(state);
     
   const dailyAppointments = getAppointmentsForDay(state, state.day);
   const dailyInterviewers = getInterviewersForDay(state, state.day);
@@ -37,6 +67,7 @@ export default function Application(props) {
             time={appt.time}
             interview={interview}
             interviewers={dailyInterviewers}
+            bookInterview={bookInterview}
            />
   });
 

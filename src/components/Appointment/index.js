@@ -11,10 +11,28 @@ import "./styles.scss";
 const EMPTY = "EMPTY";
 const SHOW = "SHOW";
 const CREATE = "CREATE";
-const SAVING = "SAVING";
+// const SAVING = "SAVING";
 
 export default function Appointment(props) {
   const { mode, transition, back } = useVisualMode(props.interview ? SHOW : EMPTY);
+
+  function save(name, interviewer) {
+    const interview = {
+      student: name,
+      interviewer
+    };
+    props.bookInterview(props.id, interview)
+      .then(res => {
+        transition(SHOW)
+      });
+    
+  }
+
+  function onSave(name, interviewer) {
+    save(name, interviewer);
+    // transition(SAVING);
+  }
+
   
   return <article className="appointment">
             <Header time={props.time} />
@@ -28,8 +46,9 @@ export default function Appointment(props) {
             {mode === CREATE && (
               <Form
                 interviewers={props.interviewers}
-                onSave={() => transition(SAVING)}
+                onSave={onSave}
                 onCancel={() => back()}
+                save={save}
               />
             )}
 
