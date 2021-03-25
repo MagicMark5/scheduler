@@ -6,7 +6,6 @@ import {
   cleanup, 
   waitForElement, 
   fireEvent, 
-  //prettyDOM, 
   queryByText,
   getByText,
   getAllByTestId, 

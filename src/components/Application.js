@@ -50,7 +50,7 @@ export default function Application(props) {
             <DayList
               days={state.days}
               day={state.day}
-              setDay={setDay} // the parameter getting passed is like 'event.target.name' already
+              setDay={setDay} 
             />
           </nav>
           <img

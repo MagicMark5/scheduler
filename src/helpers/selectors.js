@@ -13,8 +13,6 @@ function getAppointmentsForDay(state, day) {
 function getInterviewersForDay(state, day) {
   const interviewerObjs = [];
 
-  // console.log(state)
-  // console.log(day);
   const thisDate = state.days.length > 0 ? state.days.filter((dateObj) => dateObj.name === day) : [];
   const intervIDs = thisDate.length > 0 ? thisDate[0].interviewers : [];
 
@@ -29,8 +27,6 @@ function getInterview(state, interview) {
   if (!interview) return null;
 
   const interviewObj = {};
-  // console.log("State from getInterview: ", state);
-  // console.log("Interview from getInterview: ", interview);
 
   interviewObj.student = interview.student;
   interviewObj.interviewer = state.interviewers[interview.interviewer];
