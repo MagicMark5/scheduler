@@ -74,7 +74,12 @@ export default function useApplicationData() {
 
     Promise.all([axios.get('/api/days'), axios.get('/api/appointments'), axios.get('/api/interviewers')])
       .then(([days, appts, interviewers]) => {
-        setState({ ...state, days: days.data, appointments: appts.data, interviewers: interviewers.data })
+        setState((state)=> ({ 
+          ...state, 
+          days: days.data, 
+          appointments: appts.data, 
+          interviewers: 
+          interviewers.data }))
       })
       .catch((err) => {
         console.log(err);
