@@ -12,8 +12,8 @@ export default function useApplicationData() {
 
   const setDay = day => setState({ ...state, day }); 
 
+  // updateSpots returns the updated days array with correct number of spots
   const updateSpots = (id, appts) => {
-
     const apptIDs = state.days.filter((dateObj) => dateObj.name === state.day)[0].appointments;
     const apptObjs = apptIDs.map((id) => appts[id]);
     const spots = apptObjs.filter((appointment) => appointment.interview === null).length;
@@ -32,24 +32,22 @@ export default function useApplicationData() {
   }
 
   const bookInterview = function(id, interview) {
-    // Creating new objects with immutability patterns (not mutating/referencing the original state object)
+    // Creating new objects with immutability patterns (not mutating/referencing the appointments state object)
     const appointment = {
       ...state.appointments[id],
       interview: { ...interview }
     };
-    // console.log("Appointment, ", appointment);
     const appointments = {
       ...state.appointments,
       [id]: appointment
     };
-    // console.log("Appointments, ", appointments);
-
+    // put request for changing null interview to the new interview object 
     return axios.put(`/api/appointments/${id}`, {interview})
       .then(res => {
-        const days = updateSpots(id, appointments);
-        // console.log(days);
+        const days = updateSpots(id, appointments); 
         setState({ ...state, appointments, days });
       })
+      // Do not put catch block here because rejection case is handled in the calling <Appointment> component
   }
 
   const cancelInterview = function(id, interview) {
@@ -67,6 +65,7 @@ export default function useApplicationData() {
         const days = updateSpots(id, appointments);
         setState({ ...state, appointments, days });
       })
+      // Do not put catch block here because rejection case is handled in the calling <Appointment> component
   };
 
 
@@ -79,7 +78,8 @@ export default function useApplicationData() {
           days: days.data, 
           appointments: appts.data, 
           interviewers: 
-          interviewers.data }))
+          interviewers.data 
+        }));
       })
       .catch((err) => {
         console.log(err);

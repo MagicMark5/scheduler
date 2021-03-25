@@ -22,9 +22,8 @@ export default function useVisualMode(modeState) {
       setMode(prev[prevHistory.length - 1]);
       return prevHistory;
     });
-    // if console.log(mode) on this line the mode will not have changed yet because useState is async
   };
-  // when we console.log(mode) here the mode has been updated before returning
+  
   return { 
     mode, 
     transition,

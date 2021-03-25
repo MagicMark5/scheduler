@@ -22,15 +22,15 @@ const saveERROR = "saveERROR";
 const destroyERROR = "destroyERROR";
 
 export default function Appointment(props) {
-  // console.log("APPOINTMENT COMP RENDER VISUAL MODE, ", props.interview);
-  // console.log("Trying to Render Appointment props, ", props);
   const { mode, transition, back } = useVisualMode(props.interview ? SHOW : EMPTY);
 
+  // <Form> Save button
   function save(name, interviewer) {
     const interview = {
       student: name,
       interviewer
     };
+    // func definition in src/hooks/useApplicationData.js
     props.bookInterview(props.id, interview)
       .then(res => {
         transition(SHOW)
@@ -40,11 +40,35 @@ export default function Appointment(props) {
       })
   }
 
+  // <Form> component helper
+  function onSave(name, interviewer) {
+    save(name, interviewer);
+    transition(SAVING); // render Status component during save
+  }
+
+  // <Show> Edit button handler
+  function onEdit() {
+    transition(EDIT);
+  }
+
+  // <Show> Delete button handler
+  function onDelete() { 
+    transition(CONFIRM); // <Confirm>
+  }
+
+  // <Confirm> button handler
+  function onConfirmDelete(name, interviewer) {
+    cancel(name, interviewer);
+    transition(DELETING, true); // render Status component during delete
+  }
+
+  // Only called from onConfirmDelete()
   function cancel(name, interviewer) {
     const interview = {
       student: name,
       interviewer
     };
+    // func definition in src/hooks/useApplicationData.js
     props.cancelInterview(props.id, interview)
       .then(res => {
         transition(EMPTY);
@@ -52,27 +76,9 @@ export default function Appointment(props) {
       .catch(err => {
         transition(destroyERROR, true);
       });
-    
   }
 
-  function onSave(name, interviewer) {
-    save(name, interviewer);
-    transition(SAVING);
-  }
-
-  function onDelete() { // passed to Show component
-    transition(CONFIRM);
-  }
-
-  function onConfirmDelete(name, interviewer) {
-    cancel(name, interviewer);
-    transition(DELETING, true);
-  }
-
-  function onEdit() {
-    transition(EDIT);
-  }
-
+  // <Error> close button handler, renders with rejected save or delete from server response
   function onClose() {
     if (mode === destroyERROR) {
       transition(SHOW);
@@ -80,7 +86,6 @@ export default function Appointment(props) {
       transition(EMPTY);
     }
   }
-
   
   return <article className="appointment" data-testid="appointment">
             <Header time={props.time} />
@@ -108,7 +113,6 @@ export default function Appointment(props) {
                 interviewers={props.interviewers}
                 onSave={onSave}
                 onCancel={() => back()}
-                save={save}
               />
             )}
             {mode === EDIT && (
@@ -117,7 +121,6 @@ export default function Appointment(props) {
                 interviewers={props.interviewers}
                 onSave={onSave}
                 onCancel={() => back()}
-                save={save}
               />
             )}
             {mode === CONFIRM && (
