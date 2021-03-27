@@ -9,7 +9,6 @@ const THIRD = "THIRD";
 
 test("useVisualMode should initialize with default value", () => {
   const { result } = renderHook(() => useVisualMode(FIRST));
-  // console.log(result.current);
   expect(result.current.mode).toBe(FIRST);
 });
 

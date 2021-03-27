@@ -36,7 +36,9 @@ export default function Appointment(props) {
         transition(SHOW)
       })
       .catch(res => {
-        transition(saveERROR, true); // pass "true" to replace the SAVING mode in history
+        // pass "true" to replace the SAVING mode in history
+        // E.g. Passing "true" to transition(THIRD, true) says "Transition to THIRD by REPLACING SECOND"
+        transition(saveERROR, true); 
       })
   }
 
@@ -78,7 +80,7 @@ export default function Appointment(props) {
       });
   }
 
-  // <Error> close button handler, renders with rejected save or delete from server response
+  // <Error> close button handler, renders with rejected save or delete from server response on error mode
   function onClose() {
     if (mode === destroyERROR) {
       transition(SHOW);
