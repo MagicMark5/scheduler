@@ -22,7 +22,7 @@ const saveERROR = "saveERROR";
 const destroyERROR = "destroyERROR";
 
 export default function Appointment(props) {
-  const { mode, transition, back } = useVisualMode(props.interview ? SHOW : EMPTY);
+  const { mode, history, transition, back } = useVisualMode(props.interview ? SHOW : EMPTY);
 
   // <Form> Save button
   function save(name, interviewer) {
@@ -83,7 +83,12 @@ export default function Appointment(props) {
     if (mode === destroyERROR) {
       transition(SHOW);
     } else if (mode === saveERROR) {
-      transition(EMPTY);
+      // Check history to see if user was editing existing appointment or creating a new one
+      if (history[history.length - 2] === "EDIT") {
+        transition(SHOW);
+      } else if (history[history.length - 2] === "CREATE") {
+        transition(EMPTY);
+      }
     }
   }
   
@@ -133,7 +138,7 @@ export default function Appointment(props) {
             {mode === saveERROR && (
               <Error
                 message={"Could not save appointment!"}
-                onClose={() => back()}
+                onClose={onClose}
               />
             )}
             {mode === destroyERROR && (
