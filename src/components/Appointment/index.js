@@ -36,7 +36,7 @@ export default function Appointment(props) {
         transition(SHOW)
       })
       .catch(res => {
-        transition(saveERROR, true);
+        transition(saveERROR, true); // pass "true" to replace the SAVING mode in history
       })
   }
 
@@ -59,7 +59,7 @@ export default function Appointment(props) {
   // <Confirm> button handler
   function onConfirmDelete(name, interviewer) {
     cancel(name, interviewer);
-    transition(DELETING, true); // render Status component during delete
+    transition(DELETING, true); // pass "true" to replace the DELETING mode in history
   }
 
   // Only called from onConfirmDelete()
@@ -133,7 +133,7 @@ export default function Appointment(props) {
             {mode === saveERROR && (
               <Error
                 message={"Could not save appointment!"}
-                onClose={onClose}
+                onClose={() => back()}
               />
             )}
             {mode === destroyERROR && (
