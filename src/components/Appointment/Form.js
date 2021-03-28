@@ -4,11 +4,11 @@ import InterviewerList from '../InterviewerList';
 import Button from '../Button';
 
 export default function Form(props) {
-
   const [name, setName] = useState(props.name || "") // String (student name)
   const [interviewer, setInterviewer] = useState(props.interviewer || null); // Number (id)
   const [error, setError] = useState("");
 
+  // Clear form state when user cancels 
   const reset = () => {
     setName("");
     setInterviewer(null);
@@ -16,6 +16,7 @@ export default function Form(props) {
 
   const cancel = () => {
     reset();
+    // calls back() in index.js (updates history and setMode)
     props.onCancel();
   };
 
@@ -32,10 +33,12 @@ export default function Form(props) {
     }
 
     setError("");
-    props.onSave(name, interviewer);
+    // Pass student name and interviewer id from state to bookInterview() in useApplicationData
+    props.onSave(name, interviewer.id);
   }
 
   const onSave = () => {
+    // check if name and interviewer are selected and show appropriate error
     validate();
   };
 
