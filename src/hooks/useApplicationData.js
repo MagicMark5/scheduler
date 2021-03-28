@@ -14,10 +14,10 @@ export default function useApplicationData() {
 
   // updateSpots returns the updated days array with correct number of spots
   const updateSpots = (id, appts) => {
-    const apptIDs = state.days.filter((dateObj) => dateObj.name === state.day)[0].appointments;
-    const apptObjs = apptIDs.map((id) => appts[id]);
-    const spots = apptObjs.filter((appointment) => appointment.interview === null).length;
-    const dayID = state.days.filter((dateObj) => dateObj.name === state.day)[0].id - 1;
+    const apptIDs = state.days.find(dateObj => dateObj.name === state.day).appointments;
+    const apptObjs = apptIDs.map(id => appts[id]);
+    const spots = apptObjs.filter(appointment => appointment.interview === null).length;
+    const dayID = state.days.filter(dateObj => dateObj.name === state.day)[0].id - 1;
     
     const day = {
       ...state.days[dayID], 
