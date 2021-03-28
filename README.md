@@ -4,10 +4,28 @@
 
 Install dependencies with `npm install`.
 
+Fork and clone the [development server api](https://github.com/lighthouse-labs/scheduler-api) and follow the README for configuration and Database setup.
+
+You will need to to run the Webpack Development Server and the Development API Server in separate terminal windows to experience the full application.
+
 ## Running Webpack Development Server
 
 ```sh
 npm start
+```
+
+## Running the Development API Server (scheduler-api)
+
+If you want to use the app normally:
+
+```sh
+npm start
+```
+
+Running the server so it returns an error when saving/deleting for testing the client's error handling capabilities:
+
+```sh
+npm run error
 ```
 
 ## Running Jest Test Framework
