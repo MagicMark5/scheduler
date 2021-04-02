@@ -1,16 +1,45 @@
-import { useState, useEffect } from "react";
+import { useReducer, useEffect } from "react";
 import axios from 'axios';
 
 export default function useApplicationData() {
 
-  const [state, setState] = useState({
+  const SET_DAY = "SET_DAY";
+  const SET_APPLICATION_DATA = "SET_APPLICATION_DATA";
+  const SET_INTERVIEW = "SET_INTERVIEW";
+
+  function reducer(state, action) {
+    switch (action.type) {
+      case SET_DAY:
+        return { ...state, day: action.day }
+      case SET_APPLICATION_DATA:
+        return { 
+          ...state, 
+          days: action.days,
+          appointments: action.appointments,
+          interviewers: action.interviewers
+         }
+      case SET_INTERVIEW: {
+        return { 
+          ...state, 
+          days: action.days,
+          appointments: action.appointments
+        }
+      }
+      default:
+        throw new Error(
+          `Tried to reduce with unsupported action type: ${action.type}`
+        );
+    }
+  }
+
+  const [state, dispatch] = useReducer(reducer, {
     day: "Monday",
     days: [],
     appointments: {}, 
     interviewers: {}
   });
 
-  const setDay = day => setState({ ...state, day }); 
+  const setDay = day => dispatch({ type: SET_DAY, day }); 
 
   // updateSpots returns the updated days array with correct number of spots
   const updateSpots = (id, appts) => {
@@ -45,7 +74,7 @@ export default function useApplicationData() {
     return axios.put(`/api/appointments/${id}`, {interview})
       .then(res => {
         const days = updateSpots(id, appointments); 
-        setState({ ...state, appointments, days });
+        dispatch({ type: SET_INTERVIEW, appointments, days });
       })
       // Do not put catch block here because rejection case is handled in the calling <Appointment> component
   }
@@ -63,7 +92,7 @@ export default function useApplicationData() {
     return axios.delete(`/api/appointments/${id}`)
       .then(res => {
         const days = updateSpots(id, appointments);
-        setState({ ...state, appointments, days });
+        dispatch({ type: SET_INTERVIEW, appointments, days });
       })
       // Do not put catch block here because rejection case is handled in the calling <Appointment> component
   };
@@ -73,13 +102,12 @@ export default function useApplicationData() {
 
     Promise.all([axios.get('/api/days'), axios.get('/api/appointments'), axios.get('/api/interviewers')])
       .then(([days, appts, interviewers]) => {
-        setState((state)=> ({ 
-          ...state, 
+        dispatch({ 
+          type: SET_APPLICATION_DATA,  
           days: days.data, 
           appointments: appts.data, 
-          interviewers: 
-          interviewers.data 
-        }));
+          interviewers: interviewers.data 
+        });
       })
       .catch((err) => {
         console.log(err);
