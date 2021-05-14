@@ -97,9 +97,47 @@ export default function useApplicationData() {
       // Do not put catch block here because rejection case is handled in the calling <Appointment> component
   };
 
-
   useEffect(() => {
+    // // Stretch-Feature - WebSockets
+    const webSocket = new WebSocket(process.env.REACT_APP_WEBSOCKET_URL);
 
+    webSocket.onopen = function(e) {
+      webSocket.send("ping");
+    }
+
+    webSocket.onerror = function(e) {
+      console.log("WS ERROR: ", e);
+    }
+
+    webSocket.onmessage = function(event) {
+      // We receive a ws message from scheduler-api when any client has made a put request to updateAppointment
+      // By either booking, editing, or deleting an interview
+      const data = JSON.parse(event.data);
+      const {id, interview, type} = data;
+      if (type === "SET_INTERVIEW") {
+        // If interview is not null, there was a booked/edited interview 
+        // dispatch action to set_interview with new interview object or null
+        Promise.all([axios.get('/api/days'), axios.get('/api/appointments')])
+          .then(([days, appts, interviewers]) => {
+            // collect updated data from scheduler-api server
+            const updatedAppts = appts.data;
+            const updatedInterview = interview ? { ...interview } : null; // If interview is null, there was a deleted interview 
+            // const updatedInterviewers = interviewers.data;
+            const appointment = { ...updatedAppts[id], interview: updatedInterview };
+            const appointments = { ...updatedAppts, [id]: appointment };
+            dispatch({ 
+              type: SET_INTERVIEW,  
+              days: days.data, 
+              appointments: appointments
+            });
+          })
+          .catch((err) => {
+            console.log(err);
+          }); 
+      }
+    }
+    
+    // On initial render collect data from scheduler-api server 
     Promise.all([axios.get('/api/days'), axios.get('/api/appointments'), axios.get('/api/interviewers')])
       .then(([days, appts, interviewers]) => {
         dispatch({ 
@@ -113,8 +151,19 @@ export default function useApplicationData() {
         console.log(err);
       });
 
+    // Close connection as clean-up
+    webSocket.onclose = function(e) {
+      return webSocket.close();
+    }
+
   }, []);
 
-  return { state, setDay, bookInterview, cancelInterview }
+  return { state, setDay, bookInterview, cancelInterview,  }
 
 };
+
+// The server is already serializing the string "pong" before sending it, 
+// which is why there are double quotes in the data messages.
+// When we send a message, we use JSON.stringify() to convert an object to a string. 
+// When we receive a message, we will use JSON.parse() to convert the string back to an object. 
+// With this pattern, we can encode more information into a single message.

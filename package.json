@@ -1,6 +1,7 @@
 {
   "name": "scheduler",
   "version": "0.1.0",
+  "proxy": "http://localhost:8001/",
   "private": true,
   "dependencies": {
     "axios": "^0.21.1",
@@ -51,6 +52,5 @@
       "<rootDir>/node_modules/",
       "<rootDir>/.git/"
     ]
-  },
-  "proxy": "http://localhost:8001"
+  }
 }

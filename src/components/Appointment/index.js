@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import useVisualMode from '../../hooks/useVisualMode'
 import Header from './Header';
 import Show from './Show';
@@ -7,8 +7,6 @@ import Empty from './Empty';
 import Form from './Form';
 import Confirm from './Confirm';
 import Error from './Error';
-
-
 import "./styles.scss";
 
 const EMPTY = "EMPTY";
@@ -23,6 +21,17 @@ const destroyERROR = "destroyERROR";
 
 export default function Appointment(props) {
   const { mode, history, transition, back } = useVisualMode(props.interview ? SHOW : EMPTY);
+  const { interview } = props;
+
+
+  useEffect(() => {
+    if (interview && mode === EMPTY) {
+     transition(SHOW);
+    }
+    if (interview === null && mode === SHOW) {
+     transition(EMPTY);
+    }
+  }, [interview, transition, mode]);
 
   // <Form> Save button
   function save(name, interviewer) {
@@ -97,10 +106,10 @@ export default function Appointment(props) {
   return <article className="appointment" data-testid="appointment">
             <Header time={props.time} />
             {mode === EMPTY && <Empty onAdd={() => transition(CREATE)} />}
-            {mode === SHOW && (
+            {mode === SHOW && interview && (
               <Show
-                student={props.interview.student}
-                interviewer={props.interview.interviewer}
+                student={interview.student}
+                interviewer={interview.interviewer}
                 onDelete={onDelete}
                 onEdit={onEdit}
               />
@@ -124,8 +133,8 @@ export default function Appointment(props) {
             )}
             {mode === EDIT && (
               <Form
-                name={props.interview.student}
-                interviewer={props.interview.interviewer}
+                name={interview.student}
+                interviewer={interview.interviewer}
                 interviewers={props.interviewers}
                 onSave={onSave}
                 onCancel={back}
@@ -135,7 +144,7 @@ export default function Appointment(props) {
               <Confirm
                 message={"Are you sure you would like to delete?"}
                 onCancel={back}
-                onConfirm={() => onConfirmDelete(props.interview.student, props.interviewer)}
+                onConfirm={() => onConfirmDelete(interview.student, props.interviewer)}
               />
             )}
             {mode === saveERROR && (
