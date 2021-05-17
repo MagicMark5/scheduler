@@ -13,7 +13,7 @@ Users may:
 * View the schedule panel to see spots remaining for every day of the week
 * Have their schedule changes automatically saved to a PostgreSQL database
 * See updates to the schedule happen in real-time (WebSocket connection)
-  * NOTE: As this is app is hosted and changes are automatically saved, anyone with the link may make changes to the schedule. These changes are visible to everyone viewing the application. 
+  * NOTE: This app is hosted and changes are automatically saved. Anyone with the link may make changes to the schedule. These changes are visible to everyone viewing the application. 
 
 ## Screenshots
 
