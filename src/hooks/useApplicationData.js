@@ -41,23 +41,26 @@ export default function useApplicationData() {
 
   const setDay = day => dispatch({ type: SET_DAY, day }); 
 
-  // updateSpots returns the updated days array with correct number of spots
   const updateSpots = (id, appts) => {
-    const apptIDs = state.days.find(dateObj => dateObj.name === state.day).appointments;
-    const apptObjs = apptIDs.map(id => appts[id]);
-    const spots = apptObjs.filter(appointment => appointment.interview === null).length;
-    const dayID = state.days.filter(dateObj => dateObj.name === state.day)[0].id - 1;
-    
-    const day = {
-      ...state.days[dayID], 
-      spots: spots
-    };
-    const days = Object.values({
-      ...state.days,
-      [dayID]: day
-    });
+    // updateSpots returns the updated days array with correct number of appointments available
+    return state.days.map((day, dayIndex) => {
+      if (day.name !== state.day) {
+        // do not alter other days in the state days array
+        return day;
+      }
 
-    return days;
+      // Get 5 appointments for the day, map with 'appts' argument
+      // which is the new state.appointments object from book/cancelInterview 
+      const appointmentsForDay = day.appointments.map(id => appts[id]);
+      // Count of spots (null appointments) remaining 
+      const spots = appointmentsForDay.filter(appointment => appointment.interview === null).length;
+
+      // return updated day for current day
+      return {
+        ...day, 
+        spots: spots
+      }
+    });
   }
 
   const bookInterview = function(id, interview) {
